@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e56b2f">
+  <meta name="description" content="A considered little ledger for sharing tour expenses between Amy, Peggy and Kennix.">
+  <title>Tour Tab — Shared expenses, settled simply</title>
+  <link rel="icon" href="/brand-mark.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --orange: #e56b2f;
+      --orange-deep: #c65325;
+      --orange-soft: #f7e3d5;
+      --paper: #fffaf2;
+      --paper-deep: #f8f0e5;
+      --sand: #eddfcf;
+      --ink: #33251e;
+      --muted: #85776d;
+      --rule: #eadfd2;
+      --green: #496c54;
+      --green-soft: #e8efe6;
+      --shadow: 0 18px 60px rgba(87, 52, 30, .10);
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 8% 3%, rgba(255,255,255,.35), transparent 24rem),
+        linear-gradient(135deg, #f0e2d2 0%, #f5eadd 45%, #eee0cf 100%);
+      font: 400 14px/1.55 var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(229,107,47,.45);
+      outline-offset: 3px;
+    }
+    ::selection { color: #fffaf2; background: var(--orange-deep); }
+
+    .site-header {
+      min-height: 76px;
+      background: var(--orange);
+      color: var(--paper);
+      border-bottom: 1px solid rgba(255,255,255,.22);
+    }
+    .header-inner {
+      width: min(1120px, calc(100% - 48px));
+      min-height: 76px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,250,242,.8);
+      border-radius: 50%;
+      font: italic 600 24px/1 var(--serif);
+      letter-spacing: -2px;
+    }
+    .brand-word {
+      display: grid;
+      gap: 1px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .18em;
+    }
+    .brand-word small {
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: .21em;
+      opacity: .78;
+    }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .header-caption {
+      color: rgba(255,250,242,.88);
+      font-size: 11px;
+      letter-spacing: .06em;
+    }
+    .reset-button {
+      padding: 9px 13px;
+      color: var(--paper);
+      background: transparent;
+      border: 1px solid rgba(255,250,242,.48);
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: 600;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .reset-button:hover { background: rgba(255,250,242,.13); border-color: var(--paper); }
+
+    main {
+      width: min(1010px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 0 0 32px;
+    }
+    .hero {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 38px;
+      padding: 54px 0 38px;
+      border-bottom: 1px solid rgba(118,84,61,.18);
+      overflow: hidden;
+    }
+    .hero-copy { position: relative; z-index: 1; max-width: 660px; }
+    .eyebrow, .section-kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--orange-deep);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      width: 24px;
+      height: 1px;
+      content: "";
+      background: currentColor;
+    }
+    h1 {
+      margin: 15px 0 12px;
+      font: 500 clamp(42px, 7vw, 68px)/1.02 var(--serif);
+      letter-spacing: -.045em;
+    }
+    h1 em { color: var(--orange-deep); font-weight: 500; }
+    .hero-description {
+      max-width: 465px;
+      margin: 0;
+      color: #78685d;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+    .hero-seal {
+      position: relative;
+      flex: 0 0 130px;
+      width: 130px;
+      height: 130px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      color: var(--orange-deep);
+      border: 1px solid rgba(198,83,37,.38);
+      border-radius: 50%;
+      text-align: center;
+      transform: rotate(8deg);
+    }
+    .hero-seal::before, .hero-seal::after {
+      position: absolute;
+      inset: 6px;
+      content: "";
+      border: 1px solid rgba(198,83,37,.23);
+      border-radius: 50%;
+    }
+    .hero-seal::after { inset: 15px; border-style: dashed; opacity: .65; }
+    .seal-number { font: 500 33px/1 var(--serif); }
+    .seal-label { margin-top: 7px; font-size: 8px; font-weight: 700; letter-spacing: .2em; }
+    .seal-small { margin-top: 4px; color: var(--muted); font-size: 7px; letter-spacing: .12em; }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin: 22px 0 38px;
+      background: rgba(255,250,242,.66);
+      border: 1px solid rgba(118,84,61,.14);
+    }
+    .overview-item {
+      min-height: 83px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 22px;
+    }
+    .overview-item + .overview-item { border-left: 1px solid var(--rule); }
+    .overview-label { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .overview-value { font: 500 26px/1 var(--serif); font-variant-numeric: tabular-nums; }
+    .overview-ornament { color: var(--orange); font: 500 18px/1 var(--serif); opacity: .8; }
+
+    .section { margin-top: 38px; }
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
+    }
+    .heading-title { display: flex; align-items: baseline; gap: 13px; }
+    .section-number { color: var(--orange); font: 500 17px/1 var(--serif); }
+    h2 { margin: 0; font: 500 27px/1.15 var(--serif); letter-spacing: -.02em; }
+    .section-note { margin: 0; color: var(--muted); font-size: 11px; }
+    .card {
+      background: var(--paper);
+      border: 1px solid rgba(118,84,61,.15);
+      box-shadow: 0 5px 22px rgba(87,52,30,.035);
+    }
+
+    .expense-form { padding: 23px 25px 22px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(210px, 1fr) minmax(205px, .72fr) minmax(175px, .62fr);
+      gap: 15px;
+    }
+    .field { min-width: 0; display: grid; gap: 7px; }
+    .field label, .split-label {
+      color: #66574d;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .field input, .field select {
+      width: 100%;
+      height: 43px;
+      padding: 0 12px;
+      color: var(--ink);
+      background: #fffdf8;
+      border: 1px solid #e7dbce;
+      border-radius: 2px;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    .field input::placeholder { color: #aa9b8e; }
+    .field input:focus, .field select:focus { outline: 0; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(229,107,47,.1); }
+    .amount-wrap { display: flex; gap: 7px; }
+    .amount-wrap input { flex: 1; min-width: 0; }
+    .amount-wrap select { width: 108px; padding: 0 7px; }
+    .amount-wrap select:disabled { color: var(--muted); background: #f4ece2; cursor: not-allowed; opacity: 1; }
+    .currency-note { margin: 0; color: #a0958c; font-size: 9px; }
+    .split-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+    }
+    .split-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .split-label { margin-right: 4px; }
+    .person-choice { position: relative; }
+    .person-choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .person-choice span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 5px 11px;
+      color: #6d5d52;
+      background: #fffdf8;
+      border: 1px solid #e7dbce;
+      border-radius: 2px;
+      font-size: 11px;
+      transition: all .16s ease;
+      cursor: pointer;
+    }
+    .person-choice input:checked + span { color: var(--orange-deep); background: #fbefe6; border-color: #e9b59a; }
+    .person-choice input:focus-visible + span { outline: 3px solid rgba(229,107,47,.35); outline-offset: 2px; }
+    .add-button {
+      min-height: 42px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 19px;
+      color: var(--paper);
+      background: var(--orange-deep);
+      border: 1px solid var(--orange-deep);
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .add-button:hover { background: #a9431d; transform: translateY(-1px); }
+    .add-button span { font-size: 16px; font-weight: 400; }
+
+    .ledger-card { overflow: hidden; }
+    .ledger-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 21px;
+      color: var(--muted);
+      background: #fcf7ef;
+      border-bottom: 1px solid var(--rule);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .ledger-topline span:last-child { font-weight: 500; letter-spacing: .07em; }
+    .expense-list { margin: 0; padding: 0; list-style: none; }
+    .expense-item {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 12px 18px;
+      padding: 18px 21px;
+      border-bottom: 1px solid var(--rule);
+      animation: arrive .28s ease both;
+    }
+    .expense-item:last-child { border-bottom: 0; }
+    .expense-main { min-width: 0; }
+    .expense-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; }
+    .expense-title { overflow-wrap: anywhere; font: 500 18px/1.25 var(--serif); }
+    .expense-date { color: #a0958c; font-size: 10px; }
+    .expense-by { margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .expense-split-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+    .share-chip {
+      padding: 3px 7px;
+      color: #6f6258;
+      background: #f4ece2;
+      border-radius: 2px;
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+    }
+    .expense-side { display: flex; align-items: start; gap: 13px; }
+    .expense-amount { padding-top: 1px; white-space: nowrap; font: 500 20px/1.2 var(--serif); font-variant-numeric: tabular-nums; }
+    .remove-button {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      color: #917f72;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      font-size: 17px;
+      line-height: 1;
+      transition: all .16s ease;
+    }
+    .remove-button:hover { color: var(--orange-deep); background: #fbefe6; border-color: #f2d5c4; }
+    .empty-state { padding: 36px 20px 38px; text-align: center; }
+    .empty-mark { width: 40px; height: 40px; display: grid; place-items: center; margin: 0 auto 11px; color: var(--orange-deep); background: #fbefe6; border-radius: 50%; font: 500 20px/1 var(--serif); }
+    .empty-state strong { display: block; font: 500 18px/1.3 var(--serif); }
+    .empty-state p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+
+    .balance-card {
+      padding: 24px;
+      color: var(--paper);
+      background: #3b2d24;
+      border: 1px solid #3b2d24;
+      box-shadow: var(--shadow);
+    }
+    .balance-intro { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding-bottom: 17px; border-bottom: 1px solid rgba(255,250,242,.16); }
+    .balance-intro h3 { margin: 7px 0 4px; font: 500 24px/1.15 var(--serif); }
+    .balance-intro p { margin: 0; color: rgba(255,250,242,.63); font-size: 11px; }
+    .balance-intro .section-kicker { color: #f3a373; }
+    .balance-stamp { color: #f3a373; font: italic 15px/1 var(--serif); }
+    .people-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 17px 0 18px; }
+    .person-balance {
+      min-width: 0;
+      padding: 14px 14px 13px;
+      color: var(--ink);
+      background: #fffaf2;
+      border: 1px solid rgba(255,255,255,.22);
+    }
+    .person-head { display: flex; align-items: center; gap: 9px; padding-bottom: 11px; border-bottom: 1px solid var(--rule); }
+    .person-avatar { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; color: var(--orange-deep); background: #f7e3d5; border-radius: 50%; font: 500 13px/1 var(--serif); }
+    .person-name { font: 500 16px/1.2 var(--serif); }
+    .person-meta { margin-top: 2px; color: #9a8b7e; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+    .person-breakdown { display: grid; gap: 7px; padding-top: 10px; }
+    .breakdown-row { display: flex; justify-content: space-between; gap: 6px; color: #84756a; font-size: 10px; }
+    .breakdown-row strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .person-net { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: 9px; padding-top: 9px; border-top: 1px dashed #e6d9cc; }
+    .net-label { color: #84756a; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+    .net-value { font: 500 14px/1 var(--serif); font-variant-numeric: tabular-nums; }
+    .net-value.positive { color: var(--green); }
+    .net-value.negative { color: var(--orange-deep); }
+    .settle-wrap { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); align-items: start; gap: 19px; padding-top: 17px; border-top: 1px solid rgba(255,250,242,.16); }
+    .settle-heading { margin: 0 0 5px; font: 500 18px/1.25 var(--serif); }
+    .settle-caption { margin: 0; color: rgba(255,250,242,.58); font-size: 10px; line-height: 1.55; }
+    .settlement-list { display: grid; gap: 7px; }
+    .settlement-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: #fffaf2;
+      border-left: 3px solid var(--orange);
+    }
+    .settlement-route { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; font-size: 11px; }
+    .settlement-route strong { font-weight: 700; }
+    .settlement-arrow { color: var(--orange-deep); font-size: 14px; }
+    .settlement-amount { white-space: nowrap; font: 500 16px/1 var(--serif); font-variant-numeric: tabular-nums; }
+    .settled-note { display: flex; align-items: center; gap: 9px; padding: 11px 12px; color: #385644; background: #e8efe6; font-size: 11px; }
+    .settled-dot { width: 7px; height: 7px; flex: 0 0 7px; background: #668c70; border-radius: 50%; }
+    .balance-footnote { margin: 13px 0 0; color: rgba(255,250,242,.45); font-size: 9px; text-align: right; }
+
+    .site-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 26px;
+      padding: 16px 0 0;
+      color: #8c7d71;
+      border-top: 1px solid rgba(118,84,61,.17);
+      font-size: 9px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .footer-brand { color: var(--orange-deep); font-weight: 700; letter-spacing: .17em; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 5;
+      max-width: min(360px, calc(100vw - 40px));
+      padding: 12px 16px;
+      color: var(--paper);
+      background: #3b2d24;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 760px) {
+      .header-inner, main { width: min(100% - 32px, 620px); }
+      .header-caption { display: none; }
+      .hero { padding: 42px 0 30px; }
+      .hero-seal { flex-basis: 100px; width: 100px; height: 100px; }
+      .seal-number { font-size: 27px; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .field:first-child { grid-column: 1 / -1; }
+      .split-row { align-items: start; flex-direction: column; }
+      .add-button { width: 100%; }
+      .settle-wrap { grid-template-columns: 1fr; }
+      .balance-footnote { text-align: left; }
+    }
+    @media (max-width: 520px) {
+      .site-header, .header-inner { min-height: 66px; }
+      .header-inner, main { width: calc(100% - 28px); }
+      .brand-mark { width: 34px; height: 34px; font-size: 22px; }
+      .brand-word { font-size: 11px; }
+      .header-right { gap: 0; }
+      .reset-button { padding: 8px 10px; font-size: 10px; }
+      .hero { gap: 12px; padding: 37px 0 27px; }
+      h1 { max-width: 300px; font-size: clamp(41px, 12vw, 56px); }
+      .hero-description { max-width: 325px; font-size: 12px; }
+      .hero-seal { flex-basis: 76px; width: 76px; height: 76px; }
+      .hero-seal::before { inset: 4px; }
+      .hero-seal::after { inset: 9px; }
+      .seal-number { font-size: 23px; }
+      .seal-label { margin-top: 4px; font-size: 6px; }
+      .seal-small { display: none; }
+      .overview { margin: 16px 0 32px; }
+      .overview-item { min-height: 69px; align-items: start; flex-direction: column; gap: 5px; padding: 11px 12px; }
+      .overview-label { font-size: 8px; letter-spacing: .09em; }
+      .overview-value { font-size: 21px; }
+      .overview-ornament { display: none; }
+      .section { margin-top: 31px; }
+      .section-heading { align-items: start; flex-direction: column; gap: 5px; }
+      .heading-title { gap: 9px; }
+      h2 { font-size: 24px; }
+      .expense-form { padding: 18px 15px 16px; }
+      .form-grid { grid-template-columns: 1fr; gap: 12px; }
+      .field:first-child { grid-column: auto; }
+      .split-row { margin-top: 16px; padding-top: 15px; }
+      .split-controls { gap: 6px; }
+      .split-label { width: 100%; margin-bottom: 2px; }
+      .ledger-topline { padding: 12px 14px; font-size: 8px; }
+      .expense-item { grid-template-columns: minmax(0,1fr) auto; gap: 9px 8px; padding: 16px 13px; }
+      .expense-title { font-size: 16px; }
+      .expense-date { font-size: 9px; }
+      .expense-side { gap: 4px; }
+      .expense-amount { font-size: 17px; }
+      .remove-button { width: 27px; height: 27px; }
+      .share-chip { padding: 3px 5px; font-size: 8px; }
+      .balance-card { padding: 18px 13px; }
+      .balance-intro h3 { font-size: 21px; }
+      .people-grid { grid-template-columns: 1fr; gap: 8px; margin: 13px 0 15px; }
+      .person-balance { padding: 11px 12px; }
+      .person-head { padding-bottom: 8px; }
+      .person-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 8px; }
+      .person-net { grid-column: 1 / -1; margin-top: 1px; padding-top: 7px; }
+      .site-footer { align-items: start; flex-direction: column; gap: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Tour Tab home">
+        <span class="brand-mark" aria-hidden="true">t.</span>
+        <span class="brand-word">TOUR TAB<small>THE SHARED LEDGER</small></span>
+      </a>
+      <div class="header-right">
+        <span class="header-caption">A clear account of a good time together</span>
+        <button class="reset-button" id="resetButton" type="button">Reset the tab</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <div class="eyebrow">Amy · Peggy · Kennix</div>
+        <h1 id="page-title">Good trips.<br><em>Clean splits.</em></h1>
+        <p class="hero-description">A little ledger for everything shared along the way. Add an expense once; the fair share and the simplest way to settle will follow.</p>
+      </div>
+      <div class="hero-seal" aria-label="Three travelers">
+        <span class="seal-number">03</span>
+        <span class="seal-label">TRAVELERS</span>
+        <span class="seal-small">ONE SHARED TAB</span>
+      </div>
+    </section>
+
+    <section class="overview" aria-label="Tour tab overview">
+      <div class="overview-item">
+        <span class="overview-label">Total shared spend</span>
+        <strong class="overview-value" id="totalSpend">$0.00</strong>
+        <span class="overview-ornament" aria-hidden="true">↗</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Expenses logged</span>
+        <strong class="overview-value" id="expenseCount">0</strong>
+        <span class="overview-ornament" aria-hidden="true">＋</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Travelers sharing</span>
+        <strong class="overview-value">03</strong>
+        <span class="overview-ornament" aria-hidden="true">⌁</span>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="add-heading">
+      <div class="section-heading">
+        <div class="heading-title"><span class="section-number">01</span><h2 id="add-heading">Add an expense</h2></div>
+        <p class="section-note">Log it once. We’ll divide it fairly.</p>
+      </div>
+      <form class="card expense-form" id="expenseForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="description">What was it for?</label>
+            <input id="description" name="description" type="text" maxlength="80" placeholder="e.g. Lunch by the harbour" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="amount">How much?</label>
+            <div class="amount-wrap">
+              <input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+              <select id="currency" name="currency" aria-label="Currency">
+                <option value="HKD">HKD</option>
+                <option value="JPY">JPY</option>
+                <option value="CNY">CNY</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="SGD">SGD</option>
+              </select>
+            </div>
+            <p class="currency-note">Choose before the first entry; amounts aren’t converted.</p>
+          </div>
+          <div class="field">
+            <label for="payer">Who paid?</label>
+            <select id="payer" name="payer" required>
+              <option value="amy">Amy</option>
+              <option value="peggy">Peggy</option>
+              <option value="kennix">Kennix</option>
+            </select>
+          </div>
+        </div>
+        <div class="split-row">
+          <div class="split-controls" role="group" aria-labelledby="splitLabel">
+            <span class="split-label" id="splitLabel">Split equally between</span>
+            <label class="person-choice"><input type="checkbox" name="shareWith" value="amy" checked><span>Amy</span></label>
+            <label class="person-choice"><input type="checkbox" name="shareWith" value="peggy" checked><span>Peggy</span></label>
+            <label class="person-choice"><input type="checkbox" name="shareWith" value="kennix" checked><span>Kennix</span></label>
+          </div>
+          <button class="add-button" type="submit"><span aria-hidden="true">＋</span> Add to the tab</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section" aria-labelledby="ledger-heading">
+      <div class="section-heading">
+        <div class="heading-title"><span class="section-number">02</span><h2 id="ledger-heading">The ledger</h2></div>
+        <p class="section-note">Every charge, with its payer and fair share.</p>
+      </div>
+      <div class="card ledger-card">
+        <div class="ledger-topline"><span>Shared expenses</span><span id="ledgerCount">0 entries</span></div>
+        <ul class="expense-list" id="expenseList" aria-live="polite"></ul>
+        <div class="empty-state" id="emptyState">
+          <span class="empty-mark" aria-hidden="true">＋</span>
+          <strong>Your tab is ready.</strong>
+          <p>Add the first shared expense above and the ledger will take shape.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="settle-heading">
+      <div class="section-heading">
+        <div class="heading-title"><span class="section-number">03</span><h2 id="settle-heading">Settle the tab</h2></div>
+        <p class="section-note">A fair share for each of you, then only the transfers needed.</p>
+      </div>
+      <div class="balance-card">
+        <div class="balance-intro">
+          <div>
+            <div class="section-kicker">The balance, at a glance</div>
+            <h3>Fair shares. Fewer transfers.</h3>
+            <p>Paid compared with each person’s share of the tour.</p>
+          </div>
+          <span class="balance-stamp" aria-hidden="true">in good balance</span>
+        </div>
+        <div class="people-grid" id="peopleBalances" aria-live="polite"></div>
+        <div class="settle-wrap">
+          <div>
+            <h4 class="settle-heading">The simplest settle-up</h4>
+            <p class="settle-caption">Follow these suggested payments and everyone ends up even.</p>
+          </div>
+          <div class="settlement-list" id="settlementList" aria-live="polite"></div>
+        </div>
+        <p class="balance-footnote">Balances are based on the expenses currently in this ledger.</p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span class="footer-brand">TOUR TAB</span>
+      <span>Your ledger is saved on this device only.</span>
+    </footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PEOPLE = [
+        { id: "amy", name: "Amy" },
+        { id: "peggy", name: "Peggy" },
+        { id: "kennix", name: "Kennix" }
+      ];
+      const CURRENCIES = new Set(["HKD", "JPY", "CNY", "USD", "EUR", "GBP", "CAD", "AUD", "SGD"]);
+      const CURRENCY_DIGITS = Object.freeze({ HKD: 2, JPY: 0, CNY: 2, USD: 2, EUR: 2, GBP: 2, CAD: 2, AUD: 2, SGD: 2 });
+      const STORAGE_KEY = "tour-tab-ledger-v2";
+      const LEGACY_STORAGE_KEY = "tour-tab-ledger-v1";
+      const emptyState = { currency: "USD", expenses: [] };
+      let state = loadState();
+      let toastTimer;
+
+      const elements = {
+        form: document.getElementById("expenseForm"),
+        description: document.getElementById("description"),
+        amount: document.getElementById("amount"),
+        currency: document.getElementById("currency"),
+        payer: document.getElementById("payer"),
+        totalSpend: document.getElementById("totalSpend"),
+        expenseCount: document.getElementById("expenseCount"),
+        ledgerCount: document.getElementById("ledgerCount"),
+        expenseList: document.getElementById("expenseList"),
+        emptyState: document.getElementById("emptyState"),
+        peopleBalances: document.getElementById("peopleBalances"),
+        settlementList: document.getElementById("settlementList"),
+        resetButton: document.getElementById("resetButton"),
+        toast: document.getElementById("toast")
+      };
+
+      function loadState() {
+        try {
+          const currentValue = localStorage.getItem(STORAGE_KEY);
+          const legacyValue = currentValue ? null : localStorage.getItem(LEGACY_STORAGE_KEY);
+          const savedValue = currentValue || legacyValue;
+          const saved = JSON.parse(savedValue || "null");
+          if (!saved || typeof saved !== "object") return { ...emptyState, expenses: [] };
+          const currency = CURRENCIES.has(saved.currency) ? saved.currency : "USD";
+          const expenses = Array.isArray(saved.expenses) ? saved.expenses.flatMap((expense) => {
+            if (!expense || typeof expense !== "object") return [];
+            const payer = PEOPLE.find((person) => person.id === expense.payer)?.id;
+            const shareWith = Array.isArray(expense.shareWith)
+              ? [...new Set(expense.shareWith.filter((id) => PEOPLE.some((person) => person.id === id)))]
+              : [];
+            const amountUnits = Number.isSafeInteger(expense.amountUnits)
+              ? expense.amountUnits
+              : Number.isSafeInteger(expense.amountCents)
+                ? Math.round(expense.amountCents / 100 * currencyScale(currency))
+                : 0;
+            const description = typeof expense.description === "string" ? expense.description.trim().slice(0, 80) : "";
+            if (!payer || !shareWith.length || amountUnits < 1 || !description) return [];
+            return [{
+              id: typeof expense.id === "string" ? expense.id : makeId(),
+              description,
+              amountUnits,
+              payer,
+              shareWith,
+              createdAt: typeof expense.createdAt === "string" ? expense.createdAt : new Date().toISOString()
+            }];
+          }) : [];
+          const loaded = { currency, expenses };
+          if (legacyValue) {
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded));
+              localStorage.removeItem(LEGACY_STORAGE_KEY);
+            } catch { /* Keep using the legacy copy if migration storage is unavailable. */ }
+          }
+          return loaded;
+        } catch {
+          return { ...emptyState, expenses: [] };
+        }
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          showToast("This browser couldn’t save the ledger. Your current view is still available.");
+        }
+      }
+
+      function makeId() {
+        return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
+
+      function currencyScale(currency) {
+        return 10 ** (CURRENCY_DIGITS[currency] ?? 2);
+      }
+
+      function formatMoney(units) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: state.currency
+        }).format(units / currencyScale(state.currency));
+      }
+
+      function safeText(value) {
+        return String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[character]);
+      }
+
+      function splitMinorUnits(amountUnits, shareWith) {
+        const base = Math.floor(amountUnits / shareWith.length);
+        const remainder = amountUnits % shareWith.length;
+        return new Map(shareWith.map((personId, index) => [personId, base + (index < remainder ? 1 : 0)]));
+      }
+
+      function summarize() {
+        const paid = Object.fromEntries(PEOPLE.map((person) => [person.id, 0]));
+        const shares = Object.fromEntries(PEOPLE.map((person) => [person.id, 0]));
+        let totalUnits = 0;
+        for (const expense of state.expenses) {
+          totalUnits += expense.amountUnits;
+          paid[expense.payer] += expense.amountUnits;
+          for (const [personId, amount] of splitMinorUnits(expense.amountUnits, expense.shareWith)) {
+            shares[personId] += amount;
+          }
+        }
+        const net = Object.fromEntries(PEOPLE.map((person) => [person.id, paid[person.id] - shares[person.id]]));
+        return { paid, shares, net, totalUnits };
+      }
+
+      function minimalSettlements(net) {
+        const debtors = PEOPLE.map(({ id, name }) => ({ id, name, units: Math.max(0, -net[id]) })).filter((item) => item.units > 0);
+        const creditors = PEOPLE.map(({ id, name }) => ({ id, name, units: Math.max(0, net[id]) })).filter((item) => item.units > 0);
+        const transfers = [];
+        let debtorIndex = 0;
+        let creditorIndex = 0;
+        while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
+          const debtor = debtors[debtorIndex];
+          const creditor = creditors[creditorIndex];
+          const units = Math.min(debtor.units, creditor.units);
+          if (units > 0) transfers.push({ from: debtor.name, to: creditor.name, units });
+          debtor.units -= units;
+          creditor.units -= units;
+          if (debtor.units === 0) debtorIndex += 1;
+          if (creditor.units === 0) creditorIndex += 1;
+        }
+        return transfers;
+      }
+
+      function renderOverview(summary) {
+        elements.totalSpend.textContent = formatMoney(summary.totalUnits);
+        elements.expenseCount.textContent = String(state.expenses.length);
+        const count = state.expenses.length;
+        elements.ledgerCount.textContent = `${count} ${count === 1 ? "entry" : "entries"}`;
+      }
+
+      function formatDate(iso) {
+        const date = new Date(iso);
+        if (Number.isNaN(date.getTime())) return "Date not set";
+        return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
+      }
+
+      function renderLedger() {
+        const items = [...state.expenses].reverse();
+        elements.emptyState.hidden = items.length > 0;
+        elements.expenseList.innerHTML = items.map((expense) => {
+          const payerName = PEOPLE.find((person) => person.id === expense.payer)?.name || "Unknown";
+          const shares = splitMinorUnits(expense.amountUnits, expense.shareWith);
+          const chips = expense.shareWith.map((id) => {
+            const name = PEOPLE.find((person) => person.id === id)?.name || "Traveler";
+            return `<span class="share-chip">${safeText(name)} · ${formatMoney(shares.get(id))}</span>`;
+          }).join("");
+          return `
+            <li class="expense-item">
+              <div class="expense-main">
+                <div class="expense-title-row"><strong class="expense-title">${safeText(expense.description)}</strong><span class="expense-date">${safeText(formatDate(expense.createdAt))}</span></div>
+                <div class="expense-by">Paid by ${safeText(payerName)} · split equally</div>
+                <div class="expense-split-list" aria-label="Each person's share">${chips}</div>
+              </div>
+              <div class="expense-side">
+                <strong class="expense-amount">${formatMoney(expense.amountUnits)}</strong>
+                <button class="remove-button" type="button" data-remove="${safeText(expense.id)}" aria-label="Remove ${safeText(expense.description)}" title="Remove expense">×</button>
+              </div>
+            </li>`;
+        }).join("");
+      }
+
+      function renderPeople(summary) {
+        elements.peopleBalances.innerHTML = PEOPLE.map(({ id, name }) => {
+          const balance = summary.net[id];
+          let label = "Settled";
+          let netValue = formatMoney(0);
+          let stateClass = "";
+          if (balance > 0) {
+            label = "To receive";
+            netValue = `+${formatMoney(balance)}`;
+            stateClass = "positive";
+          } else if (balance < 0) {
+            label = "To pay";
+            netValue = `−${formatMoney(Math.abs(balance))}`;
+            stateClass = "negative";
+          }
+          return `
+            <article class="person-balance" aria-label="${name}'s balance">
+              <div class="person-head">
+                <span class="person-avatar" aria-hidden="true">${name[0]}</span>
+                <div><div class="person-name">${name}</div><div class="person-meta">Tour traveler</div></div>
+              </div>
+              <div class="person-breakdown">
+                <div class="breakdown-row"><span>Paid</span><strong>${formatMoney(summary.paid[id])}</strong></div>
+                <div class="breakdown-row"><span>Fair share</span><strong>${formatMoney(summary.shares[id])}</strong></div>
+                <div class="person-net"><span class="net-label">${label}</span><strong class="net-value ${stateClass}">${netValue}</strong></div>
+              </div>
+            </article>`;
+        }).join("");
+      }
+
+      function renderSettlements(summary) {
+        const transfers = minimalSettlements(summary.net);
+        if (transfers.length === 0) {
+          const message = state.expenses.length === 0
+            ? "Add an expense and your settle-up will appear here."
+            : "Everyone is even. Nothing more to transfer.";
+          elements.settlementList.innerHTML = `<div class="settled-note"><span class="settled-dot" aria-hidden="true"></span>${message}</div>`;
+          return;
+        }
+        elements.settlementList.innerHTML = transfers.map((transfer) => `
+          <div class="settlement-item">
+            <span class="settlement-route"><strong>${transfer.from}</strong><span>pays</span><span class="settlement-arrow" aria-hidden="true">→</span><strong>${transfer.to}</strong></span>
+            <strong class="settlement-amount">${formatMoney(transfer.units)}</strong>
+          </div>`).join("");
+      }
+
+      function render() {
+        const summary = summarize();
+        elements.currency.value = state.currency;
+        elements.currency.disabled = state.expenses.length > 0;
+        elements.currency.title = elements.currency.disabled ? "Reset the tab before changing currency" : "Choose one currency for this tab";
+        const step = CURRENCY_DIGITS[state.currency] === 0 ? "1" : "0.01";
+        elements.amount.min = step;
+        elements.amount.step = step;
+        elements.amount.placeholder = step === "1" ? "0" : "0.00";
+        renderOverview(summary);
+        renderLedger();
+        renderPeople(summary);
+        renderSettlements(summary);
+      }
+
+      function showToast(message) {
+        elements.toast.textContent = message;
+        elements.toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2600);
+      }
+
+      elements.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const description = elements.description.value.trim();
+        const amount = Number.parseFloat(elements.amount.value);
+        const amountUnits = Math.round(amount * currencyScale(state.currency));
+        const shareWith = [...elements.form.querySelectorAll('input[name="shareWith"]:checked')].map((input) => input.value);
+        if (!description) {
+          elements.description.focus();
+          return;
+        }
+        if (!Number.isFinite(amount) || amountUnits < 1 || !Number.isSafeInteger(amountUnits)) {
+          elements.amount.setCustomValidity("Enter a positive amount within the supported range.");
+          elements.amount.reportValidity();
+          elements.amount.addEventListener("input", () => elements.amount.setCustomValidity(""), { once: true });
+          return;
+        }
+        if (shareWith.length === 0) {
+          showToast("Choose at least one person to share this expense.");
+          elements.form.querySelector('input[name="shareWith"]')?.focus();
+          return;
+        }
+        state.expenses.push({
+          id: makeId(),
+          description,
+          amountUnits,
+          payer: elements.payer.value,
+          shareWith,
+          createdAt: new Date().toISOString()
+        });
+        persist();
+        render();
+        elements.form.reset();
+        elements.currency.value = state.currency;
+        elements.description.focus();
+        showToast("Expense added. Balances updated.");
+      });
+
+      elements.currency.addEventListener("change", () => {
+        if (!CURRENCIES.has(elements.currency.value)) return;
+        if (state.expenses.length > 0) {
+          elements.currency.value = state.currency;
+          showToast("Reset the tab before changing its currency.");
+          return;
+        }
+        state.currency = elements.currency.value;
+        elements.amount.value = "";
+        persist();
+        render();
+      });
+
+      elements.amount.addEventListener("input", () => elements.amount.setCustomValidity(""));
+
+      elements.expenseList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove]");
+        if (!button) return;
+        const expense = state.expenses.find((item) => item.id === button.dataset.remove);
+        if (!expense) return;
+        state.expenses = state.expenses.filter((item) => item.id !== expense.id);
+        persist();
+        render();
+        showToast("Expense removed. Balances updated.");
+      });
+
+      elements.resetButton.addEventListener("click", () => {
+        if (state.expenses.length === 0 && state.currency === "USD") {
+          showToast("Your tab is already clear.");
+          return;
+        }
+        if (!window.confirm("Reset the full tour tab? This will remove every expense and return the currency to USD.")) return;
+        state = { currency: "USD", expenses: [] };
+        persist();
+        render();
+        showToast("The tour tab has been reset.");
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
